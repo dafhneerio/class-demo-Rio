@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Student Budget and Expense Tracker</title>
+    <link rel="stylesheet" href="G1.css">
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            Student Budget<br>and Expense Tracker
+        </div>
+        <div class="logo-icon">
+            <img src="logologo.jpg.jpg" alt="App Logo">
+        </div>
+        <ul>
+            <li>
+                <a href="#" onclick="showSection('homeSection', this)">
+                    <span class="sidebar-icon">🏠</span> Main Page
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="showSection('trackerSection', this)" class="active">
+                    <span class="sidebar-icon">🗓️</span> Budget and Expense
+                </a>
+            </li>
+            <li>
+                <a href="#" onclick="showSection('summarySection', this)">
+                    <span class="sidebar-icon">☰</span> Summary
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="main-content">
+        <h1 class="tracker-header">Student Budget and Expense Tracker</h1>
+        <div id="homeSection" class="content-section hidden-section">
+            <p style="color: white;">Welcome to Smart Spending!</p>
+            <p style="color: white;">Smart Spending: Student's Budget and Expense Tracker — A program designed to equip students with the necessary skills and knowledge in managing their personal finances.</p>
+        </div>
+        <div id="trackerSection" class="content-section">
+            <form id="recordForm">
+                <div id="balanceDisplay">Current Balance: ₱<span id="currentBalanceAmount">0.00</span></div>
+ 
+                <label for="budgetInput">Budget:</label>
+                <input type="number" id="budgetInput" placeholder="">
+ 
+                <label for="descriptionInput">Description:</label>
+                <input type="text" id="descriptionInput">
+ 
+                <label for="categoryInput">Category:</label>
+                <select id="categoryInput" required>
+                    <option value="">----Select Category----</option>
+                    <option value="Transportation">Transportation</option>
+                    <option value="School Stuff">School Stuff</option>
+                    <option value="Food">Food</option>
+                    <option value="Health">Health</option>
+                    <option value="Work Income">Work Income</option>
+                    <option value="Financial Scholarship">Financial Scholarship</option>
+                    <option value="Other">Other</option>
+                </select>
+ 
+                <label for="expensesInput">Expenses:</label>
+                <input type="number" id="expensesInput" required>
+ 
+                <label for="dateInput">Date:</label>
+                <input type="date" id="dateInput">
+ 
+                <button type="button" onclick="saveRecord()">SAVE</button>
+            </form>
+            <table id="recordsTable" style="display: none;">
+                <tr>
+                    <th>Budget</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Spending</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </table>
+        </div>
+        <div id="summarySection" class="content-section hidden-section">
+            <h1 class="tracker-header">Financial Summary</h1>
+            <div id="quickSummary">
+            </div>
+            <h2 class="tracker-header" style="background-color: transparent; color: white; border-bottom: 2px solid white; margin-top: 30px;">Detailed History</h2>
+            <table id="summaryTable">
+                <tr>
+                    <th>Budget</th>
+                    <th>Description</th>
+                    <th>Category</th>
+                    <th>Spending</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        const DB_KEY = 'students_db_v1';
+        let db = [];
+ 
+        function showSection(sectionId, clickedElement) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.add('hidden-section');
+            });
+            const selectedSection = document.getElementById(sectionId);
+            if (selectedSection) {
+                selectedSection.classList.remove('hidden-section');
+            }
+            document.querySelectorAll('.sidebar ul li a').forEach(link => {
+                link.classList.remove('active');
+            });
+            if (clickedElement) {
+                clickedElement.classList.add('active');
+            }
+            if (sectionId === 'trackerSection' || sectionId === 'summarySection') {
+                displayRecords();
+            }
+        }
+ 
+        function loadDB() {
+            const raw = localStorage.getItem(DB_KEY);
+            db = raw ? JSON.parse(raw) : [];
+            const trackerLink = document.querySelector('.sidebar ul li a[onclick*="trackerSection"]');
+            if(trackerLink) {
+                showSection('trackerSection', trackerLink);
+            } else {
+                showSection('homeSection', document.querySelector('.sidebar ul li a'));
+            }
+        }
+ 
+        function saveDB() {
+            localStorage.setItem(DB_KEY, JSON.stringify(db));
+        }
+ 
+        function displayRecords() {
+            const trackerTable = document.getElementById('recordsTable');
+            trackerTable.innerHTML = '<tr><th>Budget</th><th>Description</th><th>Category</th><th>Spending</th><th>Date</th><th>Action</th></tr>';
+            const summaryTable = document.getElementById('summaryTable');
+            summaryTable.innerHTML = '<tr><th>Budget</th><th>Description</th><th>Category</th><th>Spending</th><th>Date</th><th>Action</th></tr>';
+            
+            let totalBudget = 0, totalExpenses = 0;
+            const sortedDb = [...db].sort((a, b) => new Date(b.Date) - new Date(a.Date));
+            
+            sortedDb.forEach((r, index) => {
+                const originalIndex = db.findIndex(item => item.Budget === r.Budget && item.Description === r.Description && item.Expenses === r.Expenses && item.Date === r.Date );
+                
+                totalBudget += parseFloat(r.Budget || 0);
+                totalExpenses += parseFloat(r.Expenses || 0);
+                
+                const rowHTML = `<tr>
+                    <td>₱${parseFloat(r.Budget || 0).toFixed(2)}</td>
+                    <td>${r.Description}</td>
+                    <td>${r.Category}</td>
+                    <td>₱${parseFloat(r.Expenses || 0).toFixed(2)}</td>
+                    <td>${r.Date}</td>
+                    <td>
+                        <button onclick="editRecord(${originalIndex})">Edit</button>
+                        <button onclick="deleteRecord(${originalIndex})">Delete</button>
+                    </td>
+                </tr>`;
+                
+                trackerTable.innerHTML += rowHTML;
+                summaryTable.innerHTML += rowHTML;
+            });
+ 
+            const remaining = totalBudget - totalExpenses;
+            document.getElementById('currentBalanceAmount').innerText = remaining.toFixed(2);
+            document.getElementById('quickSummary').innerHTML = `
+                <p>Total Budget: ₱${totalBudget.toFixed(2)} | Total Expenses: ₱${totalExpenses.toFixed(2)}</p>
+                <p>Remaining Balance: Current Balance: ₱${remaining.toFixed(2)}</p>
+            `;
+        }
+ 
+        function saveRecord() {
+            const Budget = document.getElementById('budgetInput').value;
+            const Description = document.getElementById('descriptionInput').value;
+            const Category = document.getElementById('categoryInput').value;
+            const Expenses = document.getElementById('expensesInput').value;
+            const Date = document.getElementById('dateInput').value;
+ 
+            if (!Description || !Category || !Expenses) {
+                alert("Please fill in Description, Category, and Expenses.");
+                return;
+            }
+ 
+            const newRecord = { Budget: Budget || "0", Description, Category, Expenses, Date };
+            db.push(newRecord);
+            saveDB();
+            document.getElementById('recordForm').reset();
+            displayRecords();
+        }
+ 
+        function editRecord(index) {
+            const record = db[index];
+            document.getElementById('budgetInput').value = record.Budget;
+            document.getElementById('descriptionInput').value = record.Description;
+            document.getElementById('categoryInput').value = record.Category;
+            document.getElementById('expensesInput').value = record.Expenses;
+            document.getElementById('dateInput').value = record.Date;
+            
+            if (confirm("Editing: This record will be removed from history. Press 'SAVE' after editing to re-add it.")) {
+                db.splice(index, 1);
+                saveDB();
+                displayRecords();
+            } else {
+                document.getElementById('recordForm').reset();
+                displayRecords();
+            }
+        }
+ 
+        function deleteRecord(index) {
+            if (!confirm("Delete this record?")) return;
+            db.splice(index, 1);
+            saveDB();
+            displayRecords();
+        }
+        
+        loadDB();
+    </script>
+</body>
+</html>
