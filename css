@@ -8,30 +8,35 @@
     background-color: #000066;
     color: white;
 }
+ 
 body {
     font-family: Arial, sans-serif;
     margin: 0;
-    /* Pinalitan ang kulay ng background ng body sa DodgerBlue */
     background-color: DodgerBlue;
     color: white;
     display: flex;
     min-height: 100vh;
-    justify-content: center;
-    align-items: center;
+    /* Removed justify-content and align-items to let sidebar fill height */
     box-sizing: border-box;
     padding: 20px;
-    background-image: none; 
+    background-image: none;
     background-repeat: repeat;
     background-size: 200px 200px;
     background-blend-mode: multiply;
 }
+ 
 .sidebar {
     width: 250px;
     background-color: #242A52;
-    padding: 20px 0;
+    padding: 30px 0;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     border-radius: 10px 0 0 10px;
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;  /* Ensures sidebar fills full height */
+    height: 100%;
 }
+ 
 .sidebar-header {
     background-color: #2c3e50;
     color: white;
@@ -42,6 +47,7 @@ body {
     border-radius: 10px;
     margin: 0 15px 30px 15px;
 }
+ 
 .logo-icon {
     width: 100px;
     height: 100px;
@@ -54,17 +60,20 @@ body {
     align-items: center;
     overflow: hidden;
 }
+ 
 .logo-icon img {
     width: 100%;
     height: 100%;
     object-fit: contain;
     border-radius: 50%;
 }
+ 
 .sidebar ul {
     list-style-type: none;
     padding: 0;
     margin: 0;
 }
+ 
 .sidebar ul li a {
     color: white;
     text-decoration: none;
@@ -76,41 +85,69 @@ body {
     transition: background-color 0.3s;
     font-size: 1.1em;
 }
-.sidebar ul li a:hover, .sidebar ul li a.active {
+ 
+.sidebar ul li a:hover,
+.sidebar ul li a.active {
     background-color: #AAB7D1;
     color: #2c3e50;
     font-weight: bold;
 }
+ 
 .sidebar-icon {
     margin-right: 10px;
     font-size: 1.2em;
 }
+ 
 .main-content {
     flex-grow: 1;
     padding: 30px;
-    background-color: #34567D; 
+    background-color: #34567D;
     border-radius: 0 10px 10px 0;
-    margin: 20px 20px 20px 0;
-    color: white; 
+    margin: 0 20px 0 0; /* Removed top and bottom margin for alignment */
+    color: white;
 }
+ 
 .tracker-header {
-    /* Pinalitan ang kulay sa DodgerBlue */
     background-color: DodgerBlue;
-    color: white; 
+    color: white;
     text-align: center;
     padding: 15px 20px;
-    margin: 0 0 30px 0;
+    margin: 0; 
     font-size: 1.5em;
     font-weight: bold;
     border-radius: 10px;
     border-bottom: none;
 }
+ 
 .content-section {
     padding: 0;
+    padding-top: 30px; 
 }
+ 
 .hidden-section {
     display: none;
 }
+ 
+#homeSection  {
+    padding: 0;
+    background-color: transparent;
+    border-radius: 0;
+    margin-bottom: 0;
+    min-height: calc(60vh - 60px);
+    align-items: center;
+}
+ 
+#homeSection p  {
+    color: white;
+    text-align: center;
+    margin: 5px 0;
+    margin-bottom: 20px;
+    text-size-adjust: medium;
+    font-style: bold;
+    align-items: center;
+}
+
+
 #recordForm {
     display: grid;
     grid-template-columns: auto 1fr auto 1fr;
@@ -120,15 +157,17 @@ body {
     max-width: 900px;
     margin: 0 auto;
 }
+ 
 #recordForm label {
     font-weight: bold;
-    color: white; 
+    color: white;
     display: flex;
     align-items: center;
     padding-right: 10px;
     margin: 0;
     justify-content: flex-end;
 }
+ 
 #recordForm input[type="text"],
 #recordForm input[type="number"],
 #recordForm input[type="date"],
@@ -141,27 +180,14 @@ body {
     color: #2c3e50;
     box-sizing: border-box;
 }
-#dateInput {
-    font-family: Arial, sans-serif;
-}
-#recordForm label[for="budgetInput"] { grid-column: 1 / 2; grid-row: 2; justify-content: flex-start; }
-#budgetInput { grid-column: 2 / 3; grid-row: 2; }
-#recordForm label[for="categoryInput"] { grid-column: 1 / 2; grid-row: 3; justify-content: flex-start; }
-#categoryInput { grid-column: 2 / 3; grid-row: 3; }
-#recordForm label[for="descriptionInput"] { grid-column: 1 / 2; grid-row: 4; justify-content: flex-start; }
-#descriptionInput { grid-column: 2 / 3; grid-row: 4; }
-#recordForm label[for="expensesInput"] { grid-column: 1 / 2; grid-row: 5; justify-content: flex-start; }
-#expensesInput { grid-column: 2 / 3; grid-row: 5; }
-#recordForm label[for="dateInput"] { grid-column: 1 / 2; grid-row: 6; justify-content: flex-start; }
-#dateInput { grid-column: 2 / 3; grid-row: 6; }
+ 
 #balanceDisplay {
     grid-column: 3 / 5;
     grid-row: 2;
     font-size: 1.1em;
     padding: 10px;
     text-align: center;
-    /* Pinalitan ang kulay sa DodgerBlue */
-    background-color: DodgerBlue; 
+    background-color: DodgerBlue;
     color: white;
     border-radius: 10px;
     font-weight: bold;
@@ -169,9 +195,85 @@ body {
     justify-self: end;
     width: 180px;
 }
-#recordForm button {
+
+/*  ================================
+    FIELD POSITIONING
+    ================================ */
+
+/* Budget Period */
+#recordForm label[for="periodType"] {
+    grid-column: 1 / 2;
+    grid-row: 2;
+}
+#periodType {
+    grid-column: 2 / 3;
+    grid-row: 2;
+}
+
+/* Start Date (UNDER budget period) */
+#recordForm label[for="startDateInput"] {
+    grid-column: 1 / 2;
+    grid-row: 3;
+}
+#startDateInput {
+    grid-column: 2 / 3;
+    grid-row: 3;
+}
+
+/* End Date (UNDER start date) */
+#recordForm label[for="endDateInput"] {
+    grid-column: 1 / 2;
+    grid-row: 4;
+}
+#endDateInput {
+    grid-column: 2 / 3;
+    grid-row: 4;
+}
+
+/* Budget (Income) */
+#recordForm label[for="budgetInput"] {
+    grid-column: 1 / 2;
+    grid-row: 5;
+}
+#budgetInput {
+    grid-column: 2 / 3;
+    grid-row: 5;
+}
+
+/* Category */
+#recordForm label[for="categoryInput"] {
+    grid-column: 1 / 2;
+    grid-row: 6;
+}
+#categoryInput {
+    grid-column: 2 / 3;
+    grid-row: 6;
+}
+
+/* Description */
+#recordForm label[for="descriptionInput"] {
+    grid-column: 1 / 2;
+    grid-row: 7;
+}
+#descriptionInput {
     grid-column: 2 / 3;
     grid-row: 7;
+}
+
+/* Expenses */
+#recordForm label[for="expensesInput"] {
+    grid-column: 1 / 2;
+    grid-row: 8;
+}
+#expensesInput {
+    grid-column: 2 / 3;
+    grid-row: 8;
+}
+
+/* SAVE button */
+#recordForm button {
+    grid-column: 2 / 3;
+    grid-row: 9;
     width: 100px;
     padding: 8px 15px;
     background-color: #2ecc71;
@@ -185,18 +287,24 @@ body {
     justify-self: center;
     transition: background-color 0.3s;
 }
+ 
 #recordForm button:hover {
     background-color: #27ae60;
 }
-.summary, #recordsTable, .tracker-header[style] {
+
+.summary,
+#recordsTable,
+.tracker-header[style] {
     display: none;
 }
+ 
 #summarySection .tracker-header {
     background-color: #2c3e50;
     color: white;
     border-radius: 5px;
     margin-bottom: 20px;
 }
+ 
 #quickSummary {
     font-size: 1.2em;
     background-color: #2c3e50;
@@ -205,24 +313,49 @@ body {
     border-radius: 5px;
     margin-bottom: 20px;
 }
+ 
 #quickSummary p {
     color: white;
 }
+ 
 #summaryTable {
     width: 100%;
     margin-top: 20px;
     border-radius: 5px;
     overflow: hidden;
 }
-#summaryTable th, #summaryTable td {
+ 
+#summaryTable th,
+#summaryTable td {
     border: 1px solid #34567D;
     padding: 12px;
     text-align: left;
     background-color: white;
     color: #2c3e50;
 }
+ 
 #summaryTable th {
     background-color: #2c3e50;
     color: white;
 }
- 
+
+.table-container {
+    max-height: 400px;
+    overflow: auto;
+    border: 1px solid #34567D;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+.table-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
